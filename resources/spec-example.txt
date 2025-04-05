@@ -1,0 +1,1500 @@
+******************
+Estratégia 1: destinada a arquitetos e analistas que sabem como construir uma plataforma. Primeiro você começa da esquerda para a direita (documentação indo do mais abstrato para o menos abstrato) e depois vai da direita para a esquerda (especificações técnicas indo do mais granular para o menos granular). Por fim, constroe-se o código debaixo para cima: do banco para as telas.
+
+Primeira parte da construção da documentação (human only):
+1) Objetivo
+2) Atores
+3) Plataformas
+4) Fluxos e jornadas
+
+Segunda parte da construção da documentação (AI):
+5) Telas
+6) API
+7) Camada de Serviço
+8) MER
+
+Construção de código (AI): 
+9) Estrutura de pastas do projeto
+10) Banco de dados
+11) Value Objects
+12) Repository
+13) Application Service
+14) API
+15) Telas
+
+******************
+
+1) Objetivo
+	- Otimizar a gestão de aulas e gestão financeira de professores de tennis.
+	- O professor de tennis deverá poder cadastrar as quadras em que da aula, organizar seus alunos em cursos (um ou mais alunos em cada curso), marcar presença ou falta de alunos em aulas, fazer anotações de seus desempenhos e realizar sua gestão financeira.
+	- O aluno poderá visualizar sua grade de aulas, realizar checkin em aulas e anexar comentários, fotos e vídeos às aulas. Poderá também sinalizar que não poderá participar de uma aula. 
+
+2) Atores
+	- Professores
+	- Alunos
+
+3) Plataformas
+	- Website: dedicado a professores e alunos, contendo todas as funcionalidades necessárias para a gestão de aulas, alunos e finanças.
+
+4) Fluxos / Jornadas
+	- Professor
+	   1) Professor se cadastra na plataforma
+	   2) Professor cadastra as quadras em que ministra aulas
+	   3) Professor organiza os alunos que já possui em cursos que contêm um ou mais alunos (aulas em grupo) e cadastra estes cursos com informações como quadra, recorrencia das aulas, horários, etc.
+	   4) Professor convida seus alunos a se matricular em seus devidos cursos
+	   5) Professor configura as matrículas com combinados que já existiam previamente com relação a valores, recorrência de pagamento e forma de pagamento
+	   6) Eventualmente: Professor cancela aula agendada
+	   7) Eventualmente: Professor altera dia e/ou horário de aula específica
+	   8) Eventualmente: Professor marca falta de aluno em aula
+
+	- Aluno
+	   1) Aluno se cadastra na plataforma via visita direta ou através de convite de matrícula em curso enviado pelo professor
+	   2) Aluno visualiza alerta de convite de matrícula recebido (quando for convidado a se matricular em um curso por um professor)
+	   3) Aluno se matricula no curso
+	   4) Eventualmente: Aluno cancela aula agendada
+
+	- Checkin das Aulas
+	   1) Aluno se autentica na plataforma 
+	   2) Aluno visualiza sua grade de aulas
+	   3) Aluno faz checkin na(s) aula(s) do dia (ou aulas que tenham sido já tenham sido ministradas em dias anteriores, mas nunca em aulas do futuro)
+	   4) Aluno insere comentário, anexa foto(s) e/ou video(s) na aula 
+
+	- Pagamento de Cursos
+	   1) Plataforma envia e-mail ao aluno 3 dias antes da data de vencimento de um pagamento recorrente de curso
+	   2) Aluno se autentica na plataforma
+	   3) Aluno confirma pagamento de curso
+	   4) Professor se autentica na plataforma
+	   5) Professor confirma recebimento de pagamento de curso
+
+	- Cobrança de Pagamentos Atrasados
+	   1) Plataforma envia e-mail de cobrança ao aluno 1 dia após data de vencimento de pagamento atrasado
+	   2) Aluno se autentica na plataforma 
+	   3) Aluno confirma pagamento de curso
+	   4) Professor se autentica na plataforma
+	   5) Professor confirma recebimento de pagamento de curso
+	   6) Plataforma envia e-mail de cobrança ao aluno a cada 5 dias após data de vencimento de pagamento que continua atrasado
+	  
+	- Relatórios
+	   1) Aluno ou Professor visualizam relatório de desempenho do aluno com indicadores de presença, anotações, fotos e vídeos
+
+5) Telas
+	- Website
+		1. **Tela Inicial (Landing Page)**
+		   - Apresentação da plataforma
+		   - Formulário de cadastro integrado
+		   - Links para login, quem somos, termos do serviço, preços e testemunhos
+		   - Campos do formulário: 
+				- Tipo (aluno / professor)
+				- Nome
+				- E-mail
+				- Senha
+				- Confirmação de senha (tem que ser igual à senha)
+
+		2. **Tela de Cadastro**
+		   - Cadastro de professores e alunos
+		   - Campos do formulário: 
+				- Tipo (aluno / professor)
+				- Nome
+				- E-mail
+				- Senha
+				- Confirmação de senha (tem que ser igual à senha)
+
+		3. **Tela de Login**
+		   - Login para professores e alunos
+		   - Campos do formulário: 
+				- E-mail
+				- Senha
+
+		4. **Tela Quem Somos**
+		   - Descrição da empresa e proposta de valor
+
+		5. **Tela Termos do Serviço**
+		   - Termos e condições de uso da plataforma
+
+		6. **Tela de Preços**
+		   - Planos e preços disponíveis
+
+		7. **Tela de Testemunhos**
+		   - Depoimentos de clientes
+
+		8. **Dashboard Professor**
+		   - Primeira tela visualizada pelo professor após login
+		   - Indicadores: quantidade de alunos, quantidade de aulas agendadas para a semana, quantidade de aulas realizadas na semana, quantidade de aulas canceladas na semana, quantidade de aulas não realizadas na semana
+		   - Alertas: quantidade de novos alertas recebidos e Link para tela de Alertas;
+		   - Card com dados da próxima aula agendada: cada card contendo data e horário da aula, nome do clube, nome da quadra, aluno e possível anotação feita na aula pelo professor (campo planejamento)
+		   - Cards das aulas realizadas: um cad para cada aula dada (da mais recente para a mais antiga). Em cada card exibir: data da aula, nome do clube, nome da quadra, nome do aluno e, se houver um vídeo ou foto e, se necessário, exibir o link para demais arquivos. Se tiver anotação do professor e/ou do aluno, exibi-los logo abaixo.
+			- Disponível apenas para professores
+
+		9. **Quadras**
+			- Listagem das quadras que o professor cadastrou 
+			- Disponível apenas para professores
+			- Informações de cada quadra exibida na lista: 
+				- Nome do clube
+				- Nome da Quadra
+				- Tipo de quadra (saibro, rápida)
+				- Coberta (Sim/Não)
+
+		10. **Tela de Cadastro/Edição de Quadra**
+			- Formulário para cadastro/edição de quadra
+			- Botão para salvar
+			- Botão para excluir
+			- Disponível apenas para professores
+			- Campos do formulário: 
+				- Nome do clube
+				- Endereço da quadra: um campo para cada parte do endereço: CEP, logradouro, número, complemento, bairro, cidade, estado e país
+				- Nome da Quadra
+				- Tipo de quadra (saibro, rápida)
+				- Coberta (Sim/Não)
+
+		11. **Cursos**
+			- Listagem das quadras que o professor cadastrou 
+			- Disponível apenas para professores
+			- Informações de cada curso exibida na lista: 
+				- Nome do curso 
+				- Lista de alunos
+				- Quadras (cada quadra exibida com nome do clube, nome da quadra, tipo e se é coberta ou não)
+
+		12. **Tela de Cadastro/Edição de Curso**
+			- Formulário para cadastro/edição de novo curso
+			- Inclusão de aluno(s)
+			- Botão para salvar
+			- Botão para excluir
+			- Disponível apenas para professores
+			- Campos do formulário: 
+				- Nome do curso 
+				- Quadras (cada quadra exibida com nome do clube, nome da quadra, tipo e se é coberta ou não) com opções para incluir quadra no curso (listar e permitir incluir apenas quadras já cadastradas) ou remover quadra do curso;
+				- Recorrencia das aulas: 1x por semana, 2x por semana, 3x por semana, 4x por semana, 5x por semana, 6x por semana, todo dia, dias específicos do calendário;
+				- Dias da semana (disponível apenas quando selecionado 1x por semana, 2x por semana, 3x por semana, 4x por semana, 5x por semana ou 6x por semana no campo "Recorrencia das aulas"; exibir um checkbox para cada opção): Segunda-Feira, Terça-Feira, Quarta-Feira, Quinta-Feira, Sexta-Feira, Sábado, Domingo. Para cada dia selecionado, exibir um campo "Horário" e um campo "Duração em minutos" abaixo do dia selecionado;
+				- Dias específicos do calendário (disponível apenas quando selecionada a opção "dias específicos do calendário" no campo "Recorrencia das aulas"): exibir calendário que permite selecionar dias unitários (quantos quiser) do calendário. Dias selecionados ficam marcados com cor diferente no calendário e ao clicar novamente sobre um dia, remove-se o dia do planejamento;
+				- Lista de alunos incluídos no curso com as seguintes informações (disponível apenas no modo edição da tela):
+					- Checkbox para seleção
+					- Nome do aluno
+					- E-mail do aluno
+					- Indicativo se já se cadastrou na plataforma (verificado através do email do usuário)
+					- Indicador se já se matriculou no curso (verificado pelo status da matrícula do aluno no curso);
+				- Opção para incluir aluno ao curso: abre a tela de inclusão/edição de matrícula no modo inclusão (disponível apenas no modo edição da tela);
+				- Opção para excluir o vínculo dos alunos selecionados ao curso (disponível apenas no modo edição da tela);
+
+		13. **Inclusão/Edição de Matrícula**
+			- Permite a matrícula de um aluno a um curso
+			- Campos do formulário em tela:
+				- Curso: combo exibindo os cursos que o professor cadastrou disponíveis para seleção
+				- E-mail do aluno
+				- Botão "Consultar": ao ser clicado, verifica se aluno já está cadastrado na plataforma (através do e-mail de cadastro) e, caso positivo, exibe botão para "Incluir". Caso negativo, exibe campo "Nome do aluno" e botão "Convidar";
+				- Valor: valor a ser cobrado do aluno pelo curso
+				- Meio de pagamento combinado (opcional): pix, cartão de crédito, cartão de débito, dinheiro, etc.
+				- Recorrencia de pagamento: todo mês, a cada aula
+				- Dia de pagamento (disponível apenas se selecionada a opção "todo mês" no campo "Recorrencia de pagamento"): combo com dias de 1 a 31;
+				- Botão "Convidar": quando exibie e clicado, envia convite de matrícula ao curso para aluno informado e inclui registro na tabela de Matrículas com status = enviado;
+				- IMPORTANTE: as informações de valor, meio de pagamento combinado, recorrencia de pagamento, e dia de pagamento são pertinentes à matrícula do aluno no curso e não ao aluno;
+
+		13. **Alunos**
+			- Listagem dos alunos que o professor cadastrou 
+			- Disponível apenas para professores
+			- Informações de cada aluno exibida na lista: 
+				- Checkbox para seleção
+				- Nome do aluno
+				- Cursos: nomes dos cursos que estiver inscrito separados por ,
+				- Pendências financeiras: possível quantidade de parcelas em atraso
+			- Opção para incluir aluno selecionado a um curso: ao ser clicado, abre a tela de inclusão/edição de matrícula no modo inclusão e com o campo "E-mail do aluno" já preenchido e consulta realizada pelo botão "Consultar" já feita;
+
+		14. **Tela de Cadastro/Edição de Aluno**
+			- Formulário para cadastro/edição de novo aluno
+			- Botão para salvar
+			- Botão para excluir
+			- Disponível apenas para professores
+			- Campos do formulário:
+				- Nome do aluno
+				- E-mail 
+				- Indicador se já está cadastrado na plataforma: read only em tela exibido após informar e-mail do aluno
+				- Cursos em que está matriculado: separados por vírcula
+			- Botão para incluir o aluno a um curso: abre-se a tela de inclusão/edição de matrícula no modo inclusão e com o campo "E-mail do aluno" já preenchido e consulta realizada pelo botão "Consultar" já feita;
+
+		15. **Dashboard Aluno**
+		   - Primeira tela visualizada pelo aluno após login
+
+		   - Indicadores: quantidade de aulas agendadas para a semana, quantidade de aulas realizadas na semana, quantidade de aulas canceladas na semana, quantidade de aulas não realizadas na semana
+		   - Alertas: quantidade de novos alertas recebidos e Link para tela de Alertas;
+		   - Card com dados da próxima aula agendada: nome do clube, quadra, professor e possível anotação feita na aula pelo professor (campo planejamento)
+		   - Cards das aulas realizadas: um cad para cada aula dada (da mais recente para a mais antiga). Em cada card exibir: data da aula, nome do clube, quadra, nome do aluno e, se houver um vídeo ou foto e, se necessário, exibir o link para demais arquivos. Se tiver anotação do professor e/ou do aluno, exibi-los logo abaixo.
+			- Disponível apenas para alunos
+
+		16. **Tela de Checkin da Aula**
+			- Anotações
+			- Envio de fotos e vídeos
+			- Botão para salvar
+			- Botão para cancelar aula
+			- Botão para marcar falta do aluno
+			- Informações exibidas em tela: 
+				- Data e horário
+				- Nome do clube
+				- Quadra
+				- Endereço da quadra
+			- Disponível tanto para o professor quanto para o aluno
+
+		17. **Tela de Gestão Financeira do Professor**
+			- Lista pagamentos com checkbox para seleção, data de vencimento, nome do aluno, valor, status do pagamento e data de pagamento (cor da linha de acordo com status: agendado, pagamento sinalizado pelo aluno, pagamento confirmado pelo professor, cancelado, atrasado)
+			- Opções de filtro por: data de início e fim de vencimento do pagamento, aluno, status = atrasados, status = agendados, status = confirmados pelos alunos, status = confirmados pelo professor, status = cancelados
+			- Botão para cobrar aluno: envia lembrete de cobrança via e-mail
+			- Botão para confirmar pagamento pelo professor: confirma o pagamento pelo professor para os pagamentos selecionados na lista
+			- Botão para cancelar pagamento: cancela os pagamentos selecionados na lista
+			- Botão para incluir pagamento avulso: redireciona para tela de edição de pagamento no modo inclusão
+			- Botão para editar pagamento: redireciona para tela de edição de pagamento no modo de edição
+			- Disponível apenas para professores
+			
+		18. **Tela de Edição de Pagamento (Professor)**
+			- Formulário para cadastro/edição de pagamento
+			- Opção para indicar que pagamento já nasce com status = confirmado pelo professor
+			- Botão para salvar
+			- Botão para excluir
+			- Disponível apenas para professores
+			
+		19. **Tela de Alertas**
+			- Lista de alertas
+			- Ao entrar na tela, marcar todos os alertas como status = lido
+			- Informações de cada alerta exibido na lista:
+				- Data
+				- Texto
+
+		20. **Tela de Visualização de Convite para Cadastro na Plataforma**
+			- Mensagem estática em tela incentivando o cadastro na plataforma
+			- Formulário para cadastro do aluno
+			- Botão para cadastro: consome o mesmo endpoint da tela de cadastro
+		   - Campos do formulário: 
+				- Código do convite (somente leitura e exibido apenas se estiver presente na URL)
+				- Tipo (aluno / professor)
+				- Nome
+				- E-mail
+				- Senha
+				- Confirmação de senha (tem que ser igual à senha)
+
+		21. **Tela de Matrícula em Curso**
+			- Mensagem estática em tela incentivando a matrícula
+			- Dados exibidos em tela: 
+				- Nome do professor
+				- Recorrencia das aulas
+				- Horário
+				- Duração das aulas
+				- Lista de quadras em que as aulas acontecerão com as seguintes informações em colunas:
+					- Nome do clube
+					- Quadra
+					- Tipo de quadra
+					- Quadra Coberta (Sim/Não)
+					- Dia da semana
+					- Horário
+					- Duração da aula
+				- Valor do curso
+				- Recorrencia do pagamento
+				- Dia de pagamento 
+			- Formulário para cadastro do aluno ou link que esconde o formulário para cadastro e exibe o formulário para login. Informações do formulário de cadastro:
+				- Código do convite (somente leitura e exibido apenas se estiver presente na URL)
+				- Tipo (aluno / professor)
+				- Nome
+				- E-mail
+				- Senha
+				- Confirmação de senha (tem que ser igual à senha)
+			- Formulário para login na plataforma (quando selecionado):
+				- E-mail
+				- Senha
+			- Botão para confirmar matrícula: ao ser clicado, em caso de novo aluno, cadastra o aluno e efetua a matrícula (muda status para "ativa"). No caso de login, autentica o aluno e efetua a matrícula;
+
+		22. **Tela de Gestão Financeira do Aluno**
+			- Lista pagamentos direcionados aluno com checkbox para seleção, data de vencimento, valor e cor de acordo com status (agendado, pagamento sinalizado pelo aluno, pagamento confirmado pelo professor, cancelado, atrasado), nome do professor
+			- Opção de filtro por: data de início e fim de vencimento, status = atrasado, status = agendado, status = confirmados pelos aluno, status = confirmados pelo professor, status = cancelados
+			- Botão para confirmar pagamento pelo aluno: muda status dos pagamentos selecionados para confirmado pelo aluno 
+			- Disponível apenas para alunos
+
+6) API
+# API Endpoints
+
+Abaixo estão descritos os endpoints da plataforma, organizados por papel **(Authentication, Teacher, Student)**.  
+Cada endpoint inclui uma breve explicação de quais telas (ou fluxos) o utilizam.  
+
+---
+
+## 1. Authentication
+
+### `POST /auth/signup`
+- **Descrição (PT):** Realiza o cadastro de um novo usuário (pode ser aluno ou professor).  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro (para ambos aluno e professor)  
+  - Tela de Visualização de Convite para Cadastro na Plataforma (quando o usuário ainda não está cadastrado)  
+  - Tela de Matrícula em Curso (quando o aluno não está cadastrado e precisa se cadastrar antes de efetivar a matrícula)
+
+### `POST /auth/login`
+- **Descrição (PT):** Autentica o usuário na plataforma (aluno ou professor).  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Login (para ambos aluno e professor)  
+  - Tela de Matrícula em Curso (quando o aluno opta por já ter cadastro e apenas faz o login antes de confirmar a matrícula)
+
+### `POST /auth/invite`
+- **Descrição (PT):** Professor envia convite de matrícula para um aluno (gera um link ou código de convite).  
+- **Atende às Telas/Fluxos:**  
+  - Inclusão/Edição de Matrícula (quando o professor convida um aluno que ainda não está cadastrado)
+
+---
+
+## 2. Teacher
+
+Abaixo estão os endpoints destinados ao **papel de Professor**, prefixados por `/teacher/`.  
+Eles atendem principalmente às telas e funcionalidades descritas para o professor (cadastro de quadras, cursos, matrículas, gestão financeira etc.).
+
+### 2.1. Dashboard & Alerts
+
+#### `GET /teacher/dashboard`
+- **Descrição (PT):** Retorna dados e indicadores do dashboard do professor (quantidade de alunos, aulas agendadas, aulas realizadas, canceladas etc.).  
+- **Atende às Telas/Fluxos:**  
+  - Dashboard Professor
+
+#### `GET /teacher/alerts`
+- **Descrição (PT):** Lista os alertas recebidos pelo professor e marca todos como lidos ao acessar.  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Alertas (professor)
+
+---
+
+### 2.2. Courts (Quadras)
+
+#### `GET /teacher/courts`
+- **Descrição (PT):** Lista todas as quadras cadastradas pelo professor.  
+- **Atende às Telas/Fluxos:**  
+  - Tela "Quadras" (listagem)
+
+#### `POST /teacher/courts`
+- **Descrição (PT):** Cadastra uma nova quadra.  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Quadra (criação)
+
+#### `GET /teacher/courts/{courtId}`
+- **Descrição (PT):** Obtém detalhes de uma quadra específica.  
+- **Parâmetros de URL:**  
+  - `courtId`: identificador da quadra  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Quadra (edição)
+
+#### `PUT /teacher/courts/{courtId}`
+- **Descrição (PT):** Atualiza os dados de uma quadra específica.  
+- **Parâmetros de URL:**  
+  - `courtId`: identificador da quadra  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Quadra (edição)
+
+#### `DELETE /teacher/courts/{courtId}`
+- **Descrição (PT):** Exclui uma quadra específica.  
+- **Parâmetros de URL:**  
+  - `courtId`: identificador da quadra  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Quadra (exclusão)
+
+---
+
+### 2.3. Courses (Cursos)
+
+#### `GET /teacher/courses`
+- **Descrição (PT):** Lista todos os cursos cadastrados pelo professor.  
+- **Atende às Telas/Fluxos:**  
+  - Tela "Cursos" (listagem)
+
+#### `POST /teacher/courses`
+- **Descrição (PT):** Cria um novo curso, associando quadras e configurações de recorrência de aulas.  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Curso (criação)
+
+#### `GET /teacher/courses/{courseId}`
+- **Descrição (PT):** Retorna detalhes de um curso específico (quadras, recorrência, alunos etc.).  
+- **Parâmetros de URL:**  
+  - `courseId`: identificador do curso  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Curso (edição)
+
+#### `PUT /teacher/courses/{courseId}`
+- **Descrição (PT):** Atualiza informações de um curso específico (inclusão/remoção de quadras, recorrência, etc.).  
+- **Parâmetros de URL:**  
+  - `courseId`: identificador do curso  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Curso (edição)
+
+#### `DELETE /teacher/courses/{courseId}`
+- **Descrição (PT):** Exclui um curso específico.  
+- **Parâmetros de URL:**  
+  - `courseId`: identificador do curso  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Curso (exclusão)
+
+---
+
+### 2.4. Enrollments (Matrículas)
+
+#### `POST /teacher/enrollments`
+- **Descrição (PT):** Cria uma nova matrícula de aluno em um curso do professor (pode gerar convite se o aluno não existir).  
+- **Atende às Telas/Fluxos:**  
+  - Inclusão/Edição de Matrícula (inclusão)
+
+#### `GET /teacher/enrollments/{enrollmentId}`
+- **Descrição (PT):** Retorna detalhes de uma matrícula específica (status, valor, forma de pagamento etc.).  
+- **Parâmetros de URL:**  
+  - `enrollmentId`: identificador da matrícula  
+- **Atende às Telas/Fluxos:**  
+  - Inclusão/Edição de Matrícula (edição)
+
+#### `PUT /teacher/enrollments/{enrollmentId}`
+- **Descrição (PT):** Atualiza informações de uma matrícula específica (valor, forma de pagamento, status etc.).  
+- **Parâmetros de URL:**  
+  - `enrollmentId`: identificador da matrícula  
+- **Atende às Telas/Fluxos:**  
+  - Inclusão/Edição de Matrícula (edição)
+
+#### `DELETE /teacher/enrollments/{enrollmentId}`
+- **Descrição (PT):** Exclui (ou cancela) uma matrícula específica de um aluno em um curso.  
+- **Parâmetros de URL:**  
+  - `enrollmentId`: identificador da matrícula  
+- **Atende às Telas/Fluxos:**  
+  - Inclusão/Edição de Matrícula (exclusão)
+
+---
+
+### 2.5. Students (Alunos) - Visão do Professor
+
+#### `GET /teacher/students`
+- **Descrição (PT):** Lista todos os alunos vinculados ao professor, os cursos em que cada um está inscrito e pendências financeiras.  
+- **Atende às Telas/Fluxos:**  
+  - Tela "Alunos" (listagem)
+
+#### `POST /teacher/students`
+- **Descrição (PT):** Cria um novo registro de aluno (para controle do professor), podendo verificar se o e-mail já existe.  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Aluno (criação)
+
+#### `GET /teacher/students/{studentId}`
+- **Descrição (PT):** Retorna detalhes de um aluno específico (nome, e-mail, cursos matriculados).  
+- **Parâmetros de URL:**  
+  - `studentId`: identificador do aluno  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Aluno (edição)
+
+#### `PUT /teacher/students/{studentId}`
+- **Descrição (PT):** Atualiza dados de um aluno específico (nome, e-mail) ou adiciona/ remove cursos em que está matriculado.  
+- **Parâmetros de URL:**  
+  - `studentId`: identificador do aluno  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Aluno (edição)
+
+#### `DELETE /teacher/students/{studentId}`
+- **Descrição (PT):** Exclui o registro de um aluno do ponto de vista do professor (caso não haja pendências financeiras).  
+- **Parâmetros de URL:**  
+  - `studentId`: identificador do aluno  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Cadastro/Edição de Aluno (exclusão)
+
+---
+
+### 2.6. Lessons (Aulas)
+
+#### `GET /teacher/lessons`
+- **Descrição (PT):** Lista as aulas agendadas do professor, com possibilidade de filtrar (semana, aluno, curso etc.).  
+- **Atende às Telas/Fluxos:**  
+  - Dashboard Professor (cards de aulas agendadas e realizadas)  
+  - Eventualmente exibição de calendário ou listagem de aulas
+
+#### `POST /teacher/lessons`
+- **Descrição (PT):** Cria uma aula específica (fora do padrão de recorrência) ou gera várias aulas em lote (caso precise adicionar alguma aula extra).  
+- **Atende às Telas/Fluxos:**  
+  - Parte das configurações de curso ou ajustes pontuais de agenda
+
+#### `GET /teacher/lessons/{lessonId}`
+- **Descrição (PT):** Obtém os detalhes de uma aula específica, incluindo endereço da quadra e status de presença dos alunos.  
+- **Parâmetros de URL:**  
+  - `lessonId`: identificador da aula  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Checkin da Aula (visualização de detalhes)  
+  - Dashboard Professor (quando o professor clica em uma aula para ver detalhes)
+
+#### `PUT /teacher/lessons/{lessonId}`
+- **Descrição (PT):** Altera data/hora ou demais informações de uma aula específica.  
+- **Parâmetros de URL:**  
+  - `lessonId`: identificador da aula  
+- **Atende às Telas/Fluxos:**  
+  - Fluxo de alteração de aula agendada (Professor)
+
+#### `POST /teacher/lessons/{lessonId}/cancel`
+- **Descrição (PT):** Cancela uma aula agendada, mudando seu status para cancelado.  
+- **Parâmetros de URL:**  
+  - `lessonId`: identificador da aula  
+- **Atende às Telas/Fluxos:**  
+  - Fluxo em que o professor cancela uma aula agendada
+
+#### `POST /teacher/lessons/{lessonId}/mark-absence/{studentId}`
+- **Descrição (PT):** Marca falta de um aluno específico em uma aula.  
+- **Parâmetros de URL:**  
+  - `lessonId`: identificador da aula  
+  - `studentId`: identificador do aluno  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Checkin da Aula (quando o professor marca a falta do aluno)
+
+---
+
+### 2.7. Financial Management (Gestão Financeira)
+
+#### `GET /teacher/payments`
+- **Descrição (PT):** Lista pagamentos pendentes, confirmados ou atrasados dos alunos do professor, com filtros por data, status etc.  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Gestão Financeira do Professor
+
+#### `POST /teacher/payments`
+- **Descrição (PT):** Cria um lançamento de pagamento avulso para um aluno (valor, data de vencimento etc.).  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Edição de Pagamento (Professor) no modo inclusão
+
+#### `GET /teacher/payments/{paymentId}`
+- **Descrição (PT):** Retorna detalhes de um pagamento específico (valor, data de vencimento, status etc.).  
+- **Parâmetros de URL:**  
+  - `paymentId`: identificador do pagamento  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Edição de Pagamento (Professor) no modo edição
+
+#### `PUT /teacher/payments/{paymentId}`
+- **Descrição (PT):** Atualiza informações de um pagamento (valor, data de vencimento, status etc.). Pode confirmar pagamento ou cancelá-lo.  
+- **Parâmetros de URL:**  
+  - `paymentId`: identificador do pagamento  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Edição de Pagamento (Professor)
+
+#### `DELETE /teacher/payments/{paymentId}`
+- **Descrição (PT):** Exclui um pagamento específico (se ainda não estiver confirmado).  
+- **Parâmetros de URL:**  
+  - `paymentId`: identificador do pagamento  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Edição de Pagamento (Professor)
+
+#### `POST /teacher/payments/{paymentId}/charge`
+- **Descrição (PT):** Envia lembrete de cobrança via e-mail para o aluno.  
+- **Parâmetros de URL:**  
+  - `paymentId`: identificador do pagamento  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Gestão Financeira do Professor (botão "cobrar aluno")
+
+---
+
+### 2.8. Reports (Relatórios)
+
+#### `GET /teacher/report/performance/{studentId}`
+- **Descrição (PT):** Retorna relatório de desempenho do aluno (presenças, faltas, comentários, fotos, vídeos).  
+- **Parâmetros de URL:**  
+  - `studentId`: identificador do aluno  
+- **Atende às Telas/Fluxos:**  
+  - Relatórios (para o professor visualizar desempenho de um aluno específico)
+
+---
+
+## 3. Student
+
+Abaixo estão os endpoints destinados ao **papel de Aluno**, prefixados por `/student/`.  
+Eles atendem principalmente às telas e funcionalidades descritas para o aluno (dashboard, checkin em aulas, gestão financeira etc.).
+
+### 3.1. Dashboard & Alerts
+
+#### `GET /student/dashboard`
+- **Descrição (PT):** Retorna dados do dashboard do aluno (aulas agendadas para a semana, aulas realizadas, canceladas etc.).  
+- **Atende às Telas/Fluxos:**  
+  - Dashboard Aluno
+
+#### `GET /student/alerts`
+- **Descrição (PT):** Lista os alertas recebidos pelo aluno e marca como lidos ao acessar.  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Alertas (aluno)
+
+---
+
+### 3.2. Lessons (Aulas)
+
+#### `GET /student/lessons`
+- **Descrição (PT):** Lista as aulas do aluno, permitindo visualizar datas, horários e status (agendada, cancelada etc.).  
+- **Atende às Telas/Fluxos:**  
+  - Dashboard Aluno (para exibir as aulas)
+
+#### `POST /student/lessons/{lessonId}/checkin`
+- **Descrição (PT):** Registra o checkin do aluno em determinada aula (somente se a data/hora permitir).  
+- **Parâmetros de URL:**  
+  - `lessonId`: identificador da aula  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Checkin da Aula (quando o aluno faz checkin)
+
+#### `POST /student/lessons/{lessonId}/attachments`
+- **Descrição (PT):** Anexa fotos ou vídeos à aula.  
+- **Parâmetros de URL:**  
+  - `lessonId`: identificador da aula  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Checkin da Aula (quando o aluno adiciona mídia)
+
+#### `POST /student/lessons/{lessonId}/comment`
+- **Descrição (PT):** Adiciona um comentário do aluno à aula.  
+- **Parâmetros de URL:**  
+  - `lessonId`: identificador da aula  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Checkin da Aula (quando o aluno adiciona comentários)
+
+#### `POST /student/lessons/{lessonId}/cancel`
+- **Descrição (PT):** O aluno sinaliza que não poderá participar da aula (cancelando sua presença).  
+- **Parâmetros de URL:**  
+  - `lessonId`: identificador da aula  
+- **Atende às Telas/Fluxos:**  
+  - Fluxo em que o aluno cancela a participação na aula
+
+---
+
+### 3.3. Course Enrollment
+
+#### `GET /student/enrollments`
+- **Descrição (PT):** Lista as matrículas do aluno em cursos (status, valor, recorrência etc.).  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Matrícula em Curso (quando o aluno quer ver os cursos em que está matriculado)  
+  - Dashboard Aluno (pode exibir informações de curso)
+
+#### `POST /student/enrollments/{enrollmentCode}/accept`
+- **Descrição (PT):** Aceita o convite de matrícula (muda status para ativa). Pode ser usado caso o aluno já esteja logado e possua um código de convite.  
+- **Parâmetros de URL:**  
+  - `enrollmentCode`: código único do convite/matrícula  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Matrícula em Curso (quando o aluno clica para confirmar a matrícula após login)
+
+---
+
+### 3.4. Financial Management (Gestão Financeira do Aluno)
+
+#### `GET /student/payments`
+- **Descrição (PT):** Lista os pagamentos do aluno, com filtros por data, status (agendado, confirmado, atrasado etc.).  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Gestão Financeira do Aluno
+
+#### `POST /student/payments/{paymentId}/confirm`
+- **Descrição (PT):** Sinaliza que o aluno realizou o pagamento.  
+- **Parâmetros de URL:**  
+  - `paymentId`: identificador do pagamento  
+- **Atende às Telas/Fluxos:**  
+  - Tela de Gestão Financeira do Aluno (quando o aluno confirma que pagou)
+
+---
+
+### 3.5. Reports (Relatórios)
+
+#### `GET /student/report/performance`
+- **Descrição (PT):** Retorna relatório de desempenho do aluno (presenças, faltas, materiais anexados, notas de aula etc.).  
+- **Atende às Telas/Fluxos:**  
+  - Relatórios (quando o próprio aluno quer visualizar seu desempenho)
+
+---
+
+
+
+7) Application Service
+
+# Documentação da Camada de Serviços (Application Service)
+
+## 1. AuthenticationService
+
+**Classe:** `AuthenticationService`  
+**Responsabilidade:** Lida com a autenticação e cadastro de usuários (sejam eles alunos ou professores).
+
+### Métodos
+
+#### SignUp(newUserData)
+- **Responsabilidade:** Cadastrar um novo usuário (professor ou aluno)
+- **Endpoint:** `POST /auth/signup`
+- **Importante:** 
+  - Precisa criptografar a senha do usuário antes de gravar no banco de dados; 
+  - Precisa verificar se não existe um usuário com o mesmo e-mail e lançar exceção caso positivo;
+  
+
+#### Login(credentials)
+- **Responsabilidade:** Autenticar o usuário e devolver informações de sessão/token
+- **Endpoint:** `POST /auth/login`
+- **Importante:** 
+  - Precisa criptografar a senha que o usuário digitou para buscar um usuário com mesmo email e senha; 
+
+#### Invite(inviteData)
+- **Responsabilidade:** Enviar convite de matrícula para um aluno ainda não cadastrado
+- **Endpoint:** `POST /auth/invite`
+- **Importante:** 
+  - Além de enviar o email ao aluno convidado, precisa incluir registro na tabela de matrículas com o status = enviado;
+
+## 2. DashboardService
+
+**Classe:** `DashboardService`  
+**Responsabilidade:** Agregar e retornar dados consolidados para as telas de Dashboard (tanto para professor quanto para aluno).
+
+### Métodos
+
+#### GetTeacherDashboard(teacherId)
+- **Responsabilidade:** Montar indicadores e alertas do dashboard do professor
+- **Endpoint:** `GET /teacher/dashboard`
+
+#### GetStudentDashboard(studentId)
+- **Responsabilidade:** Montar indicadores e alertas do dashboard do aluno
+- **Endpoint:** `GET /student/dashboard`
+
+## 3. AlertService
+
+**Classe:** `AlertService`  
+**Responsabilidade:** Gerenciar a listagem e a marcação de alertas como lidos, seja para aluno ou professor.
+
+### Métodos
+
+#### ListTeacherAlerts(teacherId)
+- **Responsabilidade:** Listar todos os alertas do professor e marcá-los como lidos
+- **Endpoint:** `GET /teacher/alerts`
+
+#### ListStudentAlerts(studentId)
+- **Responsabilidade:** Listar todos os alertas do aluno e marcá-los como lidos
+- **Endpoint:** `GET /student/alerts`
+
+## 4. CourtService
+
+**Classe:** `CourtService`  
+**Responsabilidade:** Gerenciar o cadastro e manutenção de quadras (courts) que o professor utiliza.
+
+### Métodos
+
+#### ListAllCourts(teacherId)
+- **Responsabilidade:** Listar as quadras de um professor específico
+- **Endpoint:** `GET /teacher/courts`
+
+#### CreateCourt(courtData)
+- **Responsabilidade:** Cadastrar uma nova quadra para o professor
+- **Endpoint:** `POST /teacher/courts`
+
+#### GetCourtDetails(courtId)
+- **Responsabilidade:** Retornar informações detalhadas de uma quadra específica
+- **Endpoint:** `GET /teacher/courts/{courtId}`
+
+#### UpdateCourt(courtId, updatedCourtData)
+- **Responsabilidade:** Atualizar dados de uma quadra específica
+- **Endpoint:** `PUT /teacher/courts/{courtId}`
+
+#### DeleteCourt(courtId)
+- **Responsabilidade:** Excluir uma quadra específica
+- **Endpoint:** `DELETE /teacher/courts/{courtId}`
+
+## 5. CourseService
+
+**Classe:** `CourseService`  
+**Responsabilidade:** Gerenciar a criação, leitura, atualização e exclusão de cursos (courses) do professor, incluindo suas quadras e recorrências.
+
+### Métodos
+
+#### ListAllCourses(teacherId)
+- **Responsabilidade:** Listar todos os cursos cadastrados por um professor
+- **Endpoint:** `GET /teacher/courses`
+
+#### CreateCourse(courseData)
+- **Responsabilidade:** Criar um novo curso (associando quadras, definindo recorrência etc.)
+- **Endpoint:** `POST /teacher/courses`
+
+#### GetCourseDetails(courseId)
+- **Responsabilidade:** Retornar detalhes de um curso específico
+- **Endpoint:** `GET /teacher/courses/{courseId}`
+
+#### UpdateCourse(courseId, updatedCourseData)
+- **Responsabilidade:** Atualizar dados do curso
+- **Endpoint:** `PUT /teacher/courses/{courseId}`
+
+#### DeleteCourse(courseId)
+- **Responsabilidade:** Excluir um curso específico
+- **Endpoint:** `DELETE /teacher/courses/{courseId}`
+
+## 6. EnrollmentService
+
+**Classe:** `EnrollmentService`  
+**Responsabilidade:** Gerenciar as matrículas (enrollments) de alunos em cursos do professor.
+
+### Métodos
+
+#### ListAllEnrollments(teacherId, filters)
+- **Responsabilidade:** Listar todas as matrículas (opcionalmente filtradas)
+- **Endpoint:** `GET /teacher/enrollments`
+
+#### CreateEnrollment(enrollmentData)
+- **Responsabilidade:** Criar uma nova matrícula
+- **Endpoint:** `POST /teacher/enrollments`
+
+#### GetEnrollmentDetails(enrollmentId)
+- **Responsabilidade:** Retornar detalhes de uma matrícula específica
+- **Endpoint:** `GET /teacher/enrollments/{enrollmentId}`
+
+#### UpdateEnrollment(enrollmentId, updatedEnrollmentData)
+- **Responsabilidade:** Atualizar dados de uma matrícula específica
+- **Endpoint:** `PUT /teacher/enrollments/{enrollmentId}`
+
+#### DeleteEnrollment(enrollmentId)
+- **Responsabilidade:** Excluir (ou cancelar) uma matrícula específica
+- **Endpoint:** `DELETE /teacher/enrollments/{enrollmentId}`
+
+## 7. StudentService
+
+**Classe:** `StudentService`  
+**Responsabilidade:** Gerenciar as informações de alunos do ponto de vista do professor.
+
+### Métodos
+
+#### ListAllStudents(teacherId)
+- **Responsabilidade:** Listar todos os alunos vinculados ao professor
+- **Endpoint:** `GET /teacher/students`
+
+#### CreateStudent(studentData)
+- **Responsabilidade:** Criar um novo registro de aluno
+- **Endpoint:** `POST /teacher/students`
+
+#### GetStudentDetails(studentId)
+- **Responsabilidade:** Retornar detalhes de um aluno específico
+- **Endpoint:** `GET /teacher/students/{studentId}`
+
+#### UpdateStudent(studentId, updatedStudentData)
+- **Responsabilidade:** Atualizar dados de um aluno
+- **Endpoint:** `PUT /teacher/students/{studentId}`
+
+#### DeleteStudent(studentId)
+- **Responsabilidade:** Excluir o registro de um aluno
+- **Endpoint:** `DELETE /teacher/students/{studentId}`
+
+## 8. LessonService
+
+**Classe:** `LessonService`  
+**Responsabilidade:** Gerenciar as aulas (lessons) em si, tanto para o professor quanto para o aluno.
+
+### Métodos (Professor)
+
+#### ListAllLessons(teacherId, filters)
+- **Responsabilidade:** Listar as aulas agendadas do professor
+- **Endpoint:** `GET /teacher/lessons`
+
+#### CreateLessons(teacherId, lessonDataOrBatch)
+- **Responsabilidade:** Criar uma ou várias aulas
+- **Endpoint:** `POST /teacher/lessons`
+
+#### GetLessonDetailsForTeacher(lessonId)
+- **Responsabilidade:** Obter detalhes de uma aula específica
+- **Endpoint:** `GET /teacher/lessons/{lessonId}`
+
+#### UpdateLesson(lessonId, updatedLessonData)
+- **Responsabilidade:** Alterar data/hora ou outras informações de uma aula
+- **Endpoint:** `PUT /teacher/lessons/{lessonId}`
+
+#### CancelLesson(lessonId)
+- **Responsabilidade:** Cancelar uma aula agendada
+- **Endpoint:** `POST /teacher/lessons/{lessonId}/cancel`
+
+#### MarkStudentAbsence(lessonId, studentId)
+- **Responsabilidade:** Marcar a falta de um aluno em uma aula
+- **Endpoint:** `POST /teacher/lessons/{lessonId}/mark-absence/{studentId}`
+
+### Métodos (Aluno)
+
+#### ListAllLessonsForStudent(studentId, filters)
+- **Responsabilidade:** Listar as aulas do aluno
+- **Endpoint:** `GET /student/lessons`
+
+#### CheckIn(lessonId, studentId)
+- **Responsabilidade:** Registrar o checkin do aluno
+- **Endpoint:** `POST /student/lessons/{lessonId}/checkin`
+
+#### AttachMedia(lessonId, studentId, mediaFiles)
+- **Responsabilidade:** Anexar fotos ou vídeos a uma aula
+- **Endpoint:** `POST /student/lessons/{lessonId}/attachments`
+
+#### AddComment(lessonId, studentId, comment)
+- **Responsabilidade:** Adicionar um comentário do aluno à aula
+- **Endpoint:** `POST /student/lessons/{lessonId}/comment`
+
+#### CancelLessonParticipation(lessonId, studentId)
+- **Responsabilidade:** Cancelar participação do aluno na aula
+- **Endpoint:** `POST /student/lessons/{lessonId}/cancel`
+
+## 9. PaymentService
+
+**Classe:** `PaymentService`  
+**Responsabilidade:** Gerenciar todos os pagamentos, tanto do ponto de vista do professor quanto do aluno.
+
+### Métodos (Professor)
+
+#### ListPayments(teacherId, filters)
+- **Responsabilidade:** Retornar a lista de pagamentos dos alunos
+- **Endpoint:** `GET /teacher/payments`
+
+#### CreatePayment(teacherId, paymentData)
+- **Responsabilidade:** Criar um lançamento de pagamento avulso
+- **Endpoint:** `POST /teacher/payments`
+
+#### GetPaymentDetails(paymentId)
+- **Responsabilidade:** Retornar detalhes de um pagamento específico
+- **Endpoint:** `GET /teacher/payments/{paymentId}`
+
+#### UpdatePayment(paymentId, updatedPaymentData)
+- **Responsabilidade:** Atualizar informações de um pagamento
+- **Endpoint:** `PUT /teacher/payments/{paymentId}`
+
+#### DeletePayment(paymentId)
+- **Responsabilidade:** Excluir um pagamento
+- **Endpoint:** `DELETE /teacher/payments/{paymentId}`
+
+#### ChargePayment(paymentId)
+- **Responsabilidade:** Enviar lembrete de cobrança via e-mail
+- **Endpoint:** `POST /teacher/payments/{paymentId}/charge`
+
+### Métodos (Aluno)
+
+#### ListStudentPayments(studentId, filters)
+- **Responsabilidade:** Listar os pagamentos do aluno
+- **Endpoint:** `GET /student/payments`
+
+#### ConfirmPaymentByStudent(paymentId, studentId)
+- **Responsabilidade:** Confirmar realização do pagamento
+- **Endpoint:** `POST /student/payments/{paymentId}/confirm`
+
+## 10. ReportService
+
+**Classe:** `ReportService`  
+**Responsabilidade:** Gerar relatórios de desempenho e indicadores para professor e aluno.
+
+### Métodos
+
+#### GetStudentPerformanceReportByTeacher(teacherId, studentId)
+- **Responsabilidade:** Retornar o relatório de desempenho de um aluno específico
+- **Endpoint:** `GET /teacher/report/performance/{studentId}`
+
+#### GetOwnPerformanceReport(studentId)
+- **Responsabilidade:** Retornar o relatório de desempenho para o próprio aluno
+- **Endpoint:** `GET /student/report/performance` 
+
+8) MER
+
+# Database Model Specification
+
+A seguir está um **modelo conceitual** em linguagem **descritiva** (sem comandos SQL) que contempla as principais entidades do sistema, seus relacionamentos e a definição de colunas.  
+
+---
+
+## 1) Tabela: **Users**
+
+Armazena todos os usuários, sejam professores ou alunos (coluna `type` diferenciará o perfil).
+
+**Nome da Tabela:** `Users`  
+**Colunas:**
+
+1. **user_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**  
+   - Descrição: Identificador único do usuário.
+
+2. **name**  
+   - Tipo: `VARCHAR(100)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Nome completo do usuário.
+
+3. **email**  
+   - Tipo: `VARCHAR(100)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: E-mail do usuário (poderá ter uma UNIQUE constraint, se desejado).
+
+4. **password_hash**  
+   - Tipo: `VARCHAR(255)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Armazena o hash da senha do usuário.
+
+5. **type**  
+   - Tipo: `VARCHAR(20)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Pode ser “teacher” ou “student”.
+
+6. **created_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+7. **updated_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+8. **created_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL` (FK opcional para `Users(user_id)`)  
+9. **updated_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL` (FK opcional para `Users(user_id)`)
+
+---
+
+## 2) Tabela: **Alerts**
+
+Registra alertas ou notificações para cada usuário (professor ou aluno).
+
+**Nome da Tabela:** `Alerts`  
+**Colunas:**
+
+1. **alert_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**
+
+2. **user_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Users(user_id)`  
+   - Descrição: Usuário que receberá (ou recebeu) o alerta.
+
+3. **message**  
+   - Tipo: `VARCHAR(500)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Conteúdo do alerta.
+
+4. **is_read**  
+   - Tipo: `BIT`  
+   - Restrição: `NOT NULL` (padrão `0` = não lido)  
+   - Descrição: Marca se o alerta já foi lido.
+
+5. **created_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+6. **updated_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+7. **created_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`  
+8. **updated_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`
+
+---
+
+## 3) Tabela: **Courts**
+
+Quadras cadastradas pelos professores.
+
+**Nome da Tabela:** `Courts`  
+**Colunas:**
+
+1. **court_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**
+
+2. **teacher_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Users(user_id)`  
+   - Descrição: Identifica qual professor é dono/cadastrante da quadra.
+
+3. **club_name**  
+   - Tipo: `VARCHAR(100)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Nome do clube em que a quadra está localizada.
+
+4. **zip_code**  
+   - Tipo: `VARCHAR(9)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: CEP do endereço.
+
+5. **street**  
+   - Tipo: `VARCHAR(100)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Logradouro.
+
+6. **number**  
+   - Tipo: `VARCHAR(10)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Número do endereço (permite casos como “S/N”, “101A” etc.).
+
+7. **complement**  
+   - Tipo: `VARCHAR(100)`  
+   - Restrição: `NULL`  
+   - Descrição: Complemento do endereço.
+
+8. **district**  
+   - Tipo: `VARCHAR(100)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Bairro.
+
+9. **city**  
+   - Tipo: `VARCHAR(100)`  
+   - Restrição: `NOT NULL`
+
+10. **state**  
+    - Tipo: `VARCHAR(2)`  
+    - Restrição: `NOT NULL`  
+    - Descrição: Estado (por exemplo “SC”, “SP”, “RJ” etc.).
+
+11. **country**  
+    - Tipo: `VARCHAR(50)`  
+    - Restrição: `NOT NULL`  
+    - Descrição: País.
+
+12. **court_name**  
+    - Tipo: `VARCHAR(100)`  
+    - Restrição: `NOT NULL`  
+    - Descrição: Nome específico da quadra (ex.: “Quadra 1”).
+
+13. **court_type**  
+    - Tipo: `VARCHAR(20)`  
+    - Restrição: `NOT NULL`  
+    - Descrição: Tipo de quadra (ex.: “clay” / saibro, “hard” / rápida).
+
+14. **is_covered**  
+    - Tipo: `BIT`  
+    - Restrição: `NOT NULL` (padrão `0` = não coberta)
+
+15. **created_at**  
+    - Tipo: `DATETIME2`  
+    - Restrição: `NOT NULL`  
+16. **updated_at**  
+    - Tipo: `DATETIME2`  
+    - Restrição: `NOT NULL`  
+17. **created_by**  
+    - Tipo: `INT`  
+    - Restrição: `NOT NULL`  
+18. **updated_by**  
+    - Tipo: `INT`  
+    - Restrição: `NOT NULL`
+
+---
+
+## 4) Tabela: **Courses**
+
+Cursos organizados pelo professor, incluindo informações gerais de recorrência.
+
+**Nome da Tabela:** `Courses`  
+**Colunas:**
+
+1. **course_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**
+
+2. **teacher_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Users(user_id)`  
+   - Descrição: Professor proprietário do curso.
+
+3. **name**  
+   - Tipo: `VARCHAR(100)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Nome do curso.
+
+4. **recurrence_type**  
+   - Tipo: `VARCHAR(30)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Define se a recorrência das aulas é “1x semana”, “2x semana”, “specific_days” etc. (Poderia ser um ENUM ou algo similar.)
+
+5. **created_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+6. **updated_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+7. **created_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`  
+8. **updated_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`
+
+---
+
+## 5) Tabela: **CourseCourts**
+
+Tabela de relacionamento **N:N** entre cursos e quadras (um curso pode ter várias quadras; uma quadra pode pertencer a vários cursos).
+
+**Nome da Tabela:** `CourseCourts`  
+**Colunas:**
+
+1. **course_court_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**
+
+2. **course_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Courses(course_id)`
+
+3. **court_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Courts(court_id)`
+
+4. **created_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+5. **updated_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+6. **created_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`  
+7. **updated_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`
+
+---
+
+## 6) Tabela: **Enrollments**
+
+Matrículas de alunos em cursos, contendo dados de valor, forma de pagamento etc.
+
+**Nome da Tabela:** `Enrollments`  
+**Colunas:**
+
+1. **enrollment_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**
+
+2. **course_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Courses(course_id)`
+
+3. **student_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Users(user_id)`  
+   - Descrição: Aluno que está se matriculando (no `Users` com `type='student'`).
+
+4. **status**  
+   - Tipo: `VARCHAR(20)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Ex.: “active”, “invited”, “canceled”.
+
+5. **value**  
+   - Tipo: `DECIMAL(10,2)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Valor cobrado do aluno pelo curso.
+
+6. **payment_method**  
+   - Tipo: `VARCHAR(50)`  
+   - Restrição: `NULL`  
+   - Descrição: Ex.: “pix”, “credit_card”, “debit_card”, “cash” etc.
+
+7. **payment_recurrence**  
+   - Tipo: `VARCHAR(20)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Ex.: “every_month”, “per_lesson” ( “todo mês”, “a cada aula”).
+
+8. **payment_day**  
+   - Tipo: `INT`  
+   - Restrição: `NULL`  
+   - Descrição: Em caso de pagamento mensal, qual dia do mês (1 a 31).
+
+9. **created_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+10. **updated_at**  
+    - Tipo: `DATETIME2`  
+    - Restrição: `NOT NULL`  
+11. **created_by**  
+    - Tipo: `INT`  
+    - Restrição: `NOT NULL`  
+12. **updated_by**  
+    - Tipo: `INT`  
+    - Restrição: `NOT NULL`
+
+---
+
+## 7) Tabela: **Lessons**
+
+Representa as aulas (instâncias agendadas) de cada curso e quadra.
+
+**Nome da Tabela:** `Lessons`  
+**Colunas:**
+
+1. **lesson_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**
+
+2. **course_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Courses(course_id)`
+
+3. **court_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Courts(court_id)`  
+   - Descrição: Quadra específica onde a aula ocorrerá.
+
+4. **lesson_date_time**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Data/hora em que a aula acontecerá.
+
+5. **duration_minutes**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Duração planejada em minutos.
+
+6. **status**  
+   - Tipo: `VARCHAR(20)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Ex.: “scheduled”, “canceled”, “done”.
+
+7. **planning**  
+   - Tipo: `VARCHAR(500)`  
+   - Restrição: `NULL`  
+   - Descrição: Campo para anotações do professor (planejamento da aula).
+
+8. **created_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+9. **updated_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+10. **created_by**  
+    - Tipo: `INT`  
+    - Restrição: `NOT NULL`  
+11. **updated_by**  
+    - Tipo: `INT`  
+    - Restrição: `NOT NULL`
+
+---
+
+## 8) Tabela: **LessonAttendances**
+
+Registra a participação do aluno na aula (presença, falta, cancelado pelo aluno etc.), bem como notas que cada um pode inserir.
+
+**Nome da Tabela:** `LessonAttendances`  
+**Colunas:**
+
+1. **lesson_attendance_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**
+
+2. **lesson_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Lessons(lesson_id)`
+
+3. **student_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Users(user_id)`
+
+4. **attendance_status**  
+   - Tipo: `VARCHAR(20)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Ex.: “present”, “absent”, “canceled_by_student”.
+
+5. **teacher_note**  
+   - Tipo: `VARCHAR(500)`  
+   - Restrição: `NULL`  
+   - Descrição: Observações do professor sobre o desempenho do aluno.
+
+6. **student_note**  
+   - Tipo: `VARCHAR(500)`  
+   - Restrição: `NULL`  
+   - Descrição: Observações do aluno sobre a aula.
+
+7. **created_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+8. **updated_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+9. **created_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`  
+10. **updated_by**  
+    - Tipo: `INT`  
+    - Restrição: `NOT NULL`
+
+---
+
+## 9) Tabela: **LessonAttachments**
+
+Registra os anexos (fotos, vídeos) que um aluno faz em determinada aula.
+
+**Nome da Tabela:** `LessonAttachments`  
+**Colunas:**
+
+1. **lesson_attachment_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**
+
+2. **lesson_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Lessons(lesson_id)`
+
+3. **student_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Users(user_id)`
+
+4. **file_path**  
+   - Tipo: `VARCHAR(255)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Caminho ou URL do arquivo anexado.
+
+5. **created_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+6. **updated_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+7. **created_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`  
+8. **updated_by**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`
+
+---
+
+## 10) Tabela: **Payments**
+
+Registra todos os pagamentos (lançamentos financeiros) de um aluno para um professor, seja por uma matrícula em curso ou por pagamento avulso.
+
+**Nome da Tabela:** `Payments`  
+**Colunas:**
+
+1. **payment_id**  
+   - Tipo: `INT`  
+   - Restrição: `PK`, `NOT NULL`, **AUTO-NUMERAÇÃO**
+
+2. **enrollment_id**  
+   - Tipo: `INT`  
+   - Restrição: `NULL`, **FK** → `Enrollments(enrollment_id)`  
+   - Descrição: Relaciona o pagamento à matrícula, caso seja um pagamento de curso (pode ser `NULL` se for um pagamento avulso).
+
+3. **teacher_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Users(user_id)`  
+   - Descrição: Professor que irá receber o pagamento.
+
+4. **student_id**  
+   - Tipo: `INT`  
+   - Restrição: `NOT NULL`, **FK** → `Users(user_id)`  
+   - Descrição: Aluno responsável pelo pagamento.
+
+5. **amount**  
+   - Tipo: `DECIMAL(10,2)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Valor do pagamento.
+
+6. **due_date**  
+   - Tipo: `DATE`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Data de vencimento.
+
+7. **status**  
+   - Tipo: `VARCHAR(20)`  
+   - Restrição: `NOT NULL`  
+   - Descrição: Ex.: “scheduled”, “signaled_by_student”, “confirmed_by_teacher”, “canceled”, “overdue”.
+
+8. **payment_date**  
+   - Tipo: `DATE`  
+   - Restrição: `NULL`  
+   - Descrição: Quando o pagamento foi efetivado (se aplicável).
+
+9. **created_at**  
+   - Tipo: `DATETIME2`  
+   - Restrição: `NOT NULL`  
+10. **updated_at**  
+    - Tipo: `DATETIME2`  
+    - Restrição: `NOT NULL`  
+11. **created_by**  
+    - Tipo: `INT`  
+    - Restrição: `NOT NULL`  
+12. **updated_by**  
+    - Tipo: `INT`  
+    - Restrição: `NOT NULL`
+
+---
+
+### Considerações Finais
+
+- Todas as tabelas contêm, ao final, as colunas de auditoria: `created_at`, `updated_at`, `created_by` e `updated_by`.  
+- Os campos marcados como `FK → Tabela(coluna)` indicam a referência de chave estrangeira.  
+- Alguns campos podem ser ajustados quanto ao tamanho do `VARCHAR` e quanto à obrigatoriedade de preenchimento (`NOT NULL` / `NULL`), dependendo do comportamento real desejado.  
+- Restrições de unicidade (e.g. `email` em `Users`) podem ser aplicadas via **UNIQUE constraint** se necessário.  
+- As colunas `created_by` e `updated_by` podem (se desejado) referenciar `Users(user_id)` ou serem mantidas apenas como identificadores numéricos para fins de auditoria.  
+
+Este **desenho** do **MER** atende aos requisitos principais de entidades, relacionamentos, cardinalidades e informações de negócio, permitindo a gestão de aulas, alunos, matrículas, presença/falta, anexos, pagamentos e alertas.
+
